@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { Dashboard } from "./pages/Dashboard";
 import { Matches } from "./pages/Matches";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import QandA from "./components/q and a/QandA";
 
 export default function App() {
   const [token, setToken] = useState(false);
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/support" element={<Support />} />
           <Route path="/news" element={<News />} />
+          <Route path="/qnda" element={<QandA />} />
         </Routes>
       </BrowserRouter>
       <Footer />
