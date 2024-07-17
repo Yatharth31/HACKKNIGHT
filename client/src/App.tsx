@@ -1,22 +1,25 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Browse } from './pages/Browse';
-import { Home } from './pages/Home';
-import { NavBar } from './components/Navbar';
-import { Support } from './pages/Support';
-import Footer from './components/footer';
-import { useEffect, useState } from 'react';
-import { Dashboard } from './pages/Dashboard';
-import { Matches } from './pages/Matches';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Browse } from "./pages/Browse";
+import { Home } from "./pages/Home";
+import News from "./pages/News";
+import { NavBar } from "./components/navbar";
+import { Support } from "./pages/Support";
+import Footer from "./components/footer";
+import { useEffect, useState } from "react";
+import { Dashboard } from "./pages/Dashboard";
+import { Matches } from "./pages/Matches";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 export default function App() {
   const [token, setToken] = useState(false);
 
   if (token) {
-    sessionStorage.setItem('token', JSON.stringify(token));
+    sessionStorage.setItem("token", JSON.stringify(token));
   }
 
   useEffect(() => {
-    if (sessionStorage.getItem('token')) {
-      const data = JSON.parse(sessionStorage.getItem('token'));
+    if (sessionStorage.getItem("token")) {
+      const data = JSON.parse(sessionStorage.getItem("token") as string);
       setToken(data);
     }
   }, []);
@@ -31,6 +34,7 @@ export default function App() {
           <Route path="/messages" element={<Matches />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/support" element={<Support />} />
+          <Route path="/news" element={<News />} />
         </Routes>
       </BrowserRouter>
       <Footer />
