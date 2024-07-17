@@ -1,0 +1,162 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  /* padding: 2rem; */
+  text-align: left;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  /* padding: 2em; */
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Center the content on the screen */
+.hero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* min-height: 100vh; */
+  margin-top: 0px;
+  /* background-color: #f0f0f0; */
+}
+
+/* Style the hero content container */
+.hero-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%; /* Ensure the content takes up the full width */
+}
+
+/* Style the text content */
+.text-content {
+  /* padding: 1rem; Adjust as needed */
+  flex: 1; /* Allow the text content to grow and take available space */
+}
+
+/* Style the hero text */
+.hero-text {
+  font-size: 5rem;
+  font-weight: bold;
+  /* color: #333; */
+  /* text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); */
+}
+
+/* Style the tagline */
+.tagline {
+  font-size: 1.3rem;
+  margin-top: 10px;
+  /* color: #666; */
+}
+
+/* Style the subtitle */
+.subtitle {
+  font-size: 1.1rem;
+  margin-top: 10px;
+}
+
+/* Style the hero image */
+.hero-image {
+  width: 28.125rem;
+  height: 26.375rem;
+  flex-shrink: 0;
+  /* margin-right: 2rem; Adjust spacing between image and text */
+}
+
+.line {
+  /* position: absolute; */
+  bottom: 0;
+  width: 81.4375rem;
+  height: 0.0625rem;
+  background-color: black;
+}
+
+.intro-container {
+  display: flex;
+  align-items: center; /* Align items vertically */
+  gap: 2rem; /* Adjust the gap between the image and the text box */
+}
+
+.text-box {
+  width: 54.875rem;
+  height: 17.3125rem;
+  flex-shrink: 0;
+  border-radius: 1.25rem;
+  background: #7c43b1;
+  padding: 1rem; /* Optional: Add padding to the content */
+  color: white; /* Optional: Set text color */
+}
+
+.text-box-typography {
+  padding: 20px;
+  color: #fff;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.875rem; /* 150% */
+}
+
+.how-it-works-card {
+  width: 18.75rem;
+  height: 25rem;
+  flex-shrink: 0;
+}
+
+.how-it-works-image {
+  width: 13.87444rem;
+  height: 12.5rem;
+}
+
+.section-title {
+  color: #000;
+  text-align: center;
+  font-size: 1.5rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.5625rem; /* 104.167% */
+}
+
+.center-grid {
+  display: grid;
+  place-items: center;
+  height: 100%; /* Ensure the grid takes up the full height */
+}
+
+.testimonial-section {
+  background: #191919;
+  padding: 0; /* Add padding for content */
+  text-align: center; /* Center text content */
+  color: white; /* Set text color */
+  width: 100%;
+}
