@@ -2,10 +2,11 @@ import { FilterSearch } from '@/components/browse/FilterSearch'
 import { Button } from '@/components/ui/button'
 import { useSliderStore } from '@/store/useSliderStore'
 import { useFormDataStore } from '@/store/formDataStore'
-import { supabase } from '../lib/client'
+import { db } from '../lib/firebase'
 import { CardSlider } from '@/components/browse/CardSlider'
 import { Fragment, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
+import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore'
 
 const Header = () => {
   return (
@@ -21,23 +22,22 @@ const Header = () => {
 }
 
 async function fetchUserData(userId) {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('user_id', userId)
+  const userDocRef = doc(db, 'profiles', userId)
+  const userDocSnap = await getDoc(userDocRef)
 
-  if (error) {
-    console.error('Error fetching user data:', error)
+  if (userDocSnap.exists()) {
+    return userDocSnap.data()
+  } else {
+    console.error('No such document!')
     return null
   }
-  return data ? data[0] : null // Assuming one row per user
 }
 
 const updateFormDataWithFetchedData = (userData, sliderValues) => {
   const updateField = useFormDataStore.getState().updateField
 
   // Using the updateField method to populate the formDataStore
-  updateField('userId', userData.user_id || '') // Assuming user_id is what's fetched from database
+  updateField('userId', userData.user_id || '')
   updateField('fullName', userData.full_name || '')
   updateField('email', userData.email || '')
   updateField('role', userData.role || '')
@@ -90,52 +90,39 @@ export const Browse = () => {
 
       const interestRateTolerance = 2
 
-      let query = supabase.from('profiles').select('*')
+      let q = query(collection(db, 'profiles'))
 
       // If the user is a borrower, we don't need to adjust based on loan_amount as lenders don't specify this
       if (userData.role === 'borrower') {
-        query = query
-          .gte('repayment_period', sliderValues.repaymentPeriod - 3)
-          .lte('repayment_period', sliderValues.repaymentPeriod + 3)
-          .gte(
-            'interest_rate',
-            sliderValues.interestRate - interestRateTolerance
-          )
-          .lte(
-            'interest_rate',
-            sliderValues.interestRate + interestRateTolerance
-          )
-          .neq('role', 'borrower')
+        q = query(q,
+          where('repayment_period', '>=', sliderValues.repaymentPeriod - 3),
+          where('repayment_period', '<=', sliderValues.repaymentPeriod + 3),
+          where('interest_rate', '>=', sliderValues.interestRate - interestRateTolerance),
+          where('interest_rate', '<=', sliderValues.interestRate + interestRateTolerance),
+          where('role', '!=', 'borrower')
+        )
       } else if (userData.role === 'lender') {
         // If the user is a lender, adjust loan_amount based on slider for searching borrowers
         if (sliderValues.loanAmount !== 10000) {
-          query = query
-            .gte('loan_amount', sliderValues.loanAmount - 2000)
-            .lte('loan_amount', sliderValues.loanAmount + 2000)
+          q = query(q,
+            where('loan_amount', '>=', sliderValues.loanAmount - 2000),
+            where('loan_amount', '<=', sliderValues.loanAmount + 2000)
+          )
         } else {
-          query = query.gte('loan_amount', sliderValues.loanAmount - 2000)
+          q = query(q, where('loan_amount', '>=', sliderValues.loanAmount - 2000))
         }
 
-        query = query
-          .gte('repayment_period', sliderValues.repaymentPeriod - 3)
-          .lte('repayment_period', sliderValues.repaymentPeriod + 3)
-          .gte(
-            'interest_rate',
-            sliderValues.interestRate - interestRateTolerance
-          )
-          .lte(
-            'interest_rate',
-            sliderValues.interestRate + interestRateTolerance
-          )
-          .neq('role', 'lender')
+        q = query(q,
+          where('repayment_period', '>=', sliderValues.repaymentPeriod - 3),
+          where('repayment_period', '<=', sliderValues.repaymentPeriod + 3),
+          where('interest_rate', '>=', sliderValues.interestRate - interestRateTolerance),
+          where('interest_rate', '<=', sliderValues.interestRate + interestRateTolerance),
+          where('role', '!=', 'lender')
+        )
       }
 
-      const { data, error } = await query
-      if (error) {
-        console.error('Error fetching user data:', error)
-        return null
-      }
-
+      const querySnapshot = await getDocs(q)
+      const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
       console.log(data)
       setProfiles(data)
     }
@@ -153,7 +140,6 @@ export const Browse = () => {
 
           <div className="flex items-center justify-center h-1/2">
             <div className="w-96">
-              {/* Assuming CardSlider has a prop to handle the 'Interested' button click */}
               {profiles && (
                 <CardSlider
                   profiles={profiles}

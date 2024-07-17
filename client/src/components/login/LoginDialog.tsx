@@ -10,12 +10,10 @@ import {
 } from '@/components/ui/dialog'
 import { Checkbox, Label, TextInput } from 'flowbite-react'
 import { useState } from 'react'
-import { supabase } from '../../lib/client'
-// import { useUserStore } from '@/store/userStore'
+import { auth } from '../../lib/firebase'
+import { signInWithEmailAndPassword } from 'firebase/auth'
 
 export function LoginDialog({ setToken }) {
-  // const login = useUserStore((state) => state.login)
-
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -36,19 +34,13 @@ export function LoginDialog({ setToken }) {
     e.preventDefault()
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      })
-
-      if (error) throw error
-      console.log(data)
-      setToken(data)
-
-      // login()
-      //   alert('Check your email for verification link')
+      const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password)
+      const user = userCredential.user
+      console.log(user)
+      setToken(user)
+      // You might want to adjust how you're setting the token, depending on your app's needs
     } catch (error) {
-      alert(error)
+      alert(error.message)
     }
   }
 

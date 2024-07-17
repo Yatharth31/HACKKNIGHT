@@ -10,10 +10,11 @@ import {
 } from '@/components/ui/dialog'
 import { Checkbox, Label, TextInput } from 'flowbite-react'
 import { useState } from 'react'
-import { supabase } from '../../lib/client'
+import { auth, db } from '../../lib/firebase'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { doc, setDoc } from 'firebase/firestore'
 import { SelectRole } from './SelectRole'
 import { SelectLocation } from './SelectLocation'
-import { id } from 'create-javascript-project'
 import { useFormDataStore } from '@/store/formDataStore'
 
 export function RegisterDialog() {
@@ -30,39 +31,30 @@ export function RegisterDialog() {
     e.preventDefault()
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
+      // Create user with email and password
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password)
+      const user = userCredential.user
+
+      console.log(user)
+      formData.userId = user.uid
+      localStorage.setItem('userID', user.uid)
+
+      // Insert data into the profile collection
+      await setDoc(doc(db, 'profiles', user.uid), {
+        user_id: user.uid,
+        date_of_birth: formData.dateOfBirth,
+        full_name: formData.fullName,
+        bio: formData.bio,
+        role: formData.role,
+        location: formData.location,
+        loan_amount: formData.loanAmount,
+        interest_rate: formData.interestRate,
+        repayment_period: formData.repaymentPeriod,
       })
-
-      if (error) throw error
-      console.log(data)
-      console.log(typeof data.user.id)
-      formData.userId = data.user.id
-      localStorage.setItem('userID', data.user.id)
-
-      // insert data into the profile table
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .insert([
-          {
-            user_id: formData.userId,
-            date_of_birth: formData.dateOfBirth,
-            full_name: formData.fullName,
-            bio: formData.bio,
-            role: formData.role,
-            location: formData.location,
-            loan_amount: formData.loanAmount,
-            interest_rate: formData.interestRate,
-            repayment_period: formData.repaymentPeriod,
-          },
-        ])
-
-      if (profileError) throw profileError
 
       console.log('User and profile data inserted successfully!')
     } catch (error) {
-      alert(error)
+      alert(error.message)
     }
   }
 
