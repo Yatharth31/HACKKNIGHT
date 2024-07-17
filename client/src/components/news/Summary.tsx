@@ -1,23 +1,23 @@
 import React from 'react';
 
-interface PopupProps {
+interface SummaryProps {
   onClose: () => void;
   summary: string;
   sentiment: string;
 }
 
-const Summary: React.FC<PopupProps> = ({ onClose, summary, sentiment }) => {
+const Summary: React.FC<SummaryProps> = ({ onClose, summary, sentiment }) => {
   return (
-    <div className="popup">
-      <div className="popup-inner">
+    <div className="popup-overlay">
+      <div className="popup">
         <button className="close-btn" onClick={onClose}>Close</button>
         <div className="popup-content">
-          <div className="summary">
-            <h4>Summary</h4>
-            <p>{summary}</p>
+        <div className="sentiment">
+            <h3><strong>Sentiment:</strong> {sentiment}</h3>
           </div>
-          <div className="sentiment">
-            <h4>Sentiment: {sentiment}</h4>
+          <div className="summary">
+            <h3><strong>Summary</strong></h3>
+            <p>{summary}</p>
           </div>
         </div>
       </div>
