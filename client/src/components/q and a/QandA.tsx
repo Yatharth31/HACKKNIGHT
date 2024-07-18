@@ -1,6 +1,28 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import DOMPurify from 'dompurify'; // Import DOMPurify for sanitizing input
- import { db } from '../../lib/firebase.js';
+//  import { db } from '../../lib/firebase.ts';
+import { getFirestore, collection, setDoc, doc, addDoc } from "firebase/firestore";
+
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getAnalytics } from "firebase/analytics";
+import firebase from '@/lib/firebase';
+
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCE4mXfv6POrB5BI0rdRG1xqhjTmdBHJqg",
+  authDomain: "hacknight-9df7d.firebaseapp.com",
+  projectId: "hacknight-9df7d",
+  storageBucket: "hacknight-9df7d.appspot.com",
+  messagingSenderId: "76709410323",
+  appId: "1:76709410323:web:e890e240a0b39f35a4f1e6",
+  measurementId: "G-HW75LS2LLG"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 
 const allQuestions = [
     {
@@ -393,61 +415,49 @@ function QandA() {
   const handleOptionChange = (event) => {
     setSelectedAnswer(event.target.value);
   };
-  // const handleFormSubmit = async (event: { preventDefault: () => void; }) => {
-  //   event.preventDefault();
-  //   if (selectedAnswer) {
-  //     const correctAnswer = allQuestions[currentQuestionIndex].correctAnswer;
-  //     const userScore = selectedAnswer === correctAnswer ? 100 : 0;
-  
-  //     try {
-  //       // Get a reference to the Firestore document for the user (replace 'userID' with actual user ID)
-  //       const userDocRef = db.collection('rewards').doc('user_id');
-  
-  //       // Update Firestore with the new score
-  //       await userDocRef.set({
-  //         score: userScore,
-  //       }, { merge: true }); // Merge with existing data if it exists
-  
-  //       // Update local state to reflect the score
-  //       setScore(userScore);
-  
-  //       // Close the question box
-  //       closeQuestionBox();
-  //     } catch (error) {
-  //       console.error('Error updating score in Firestore: ', error);
-  //       // Handle error gracefully
-  //     }
-  //   } else {
-  //     alert("Please select an option before submitting.");
-  //   }
-  // };
-
-  async function handleFormSubmit() {
-    const collectionRef = db.collection('rewards');
-    const userId = 'user_id'; // Replace with actual user ID
-  
-    try {
-      // Check if the document exists
-      const docRef = collectionRef.doc(userId);
-      const doc = await docRef.get();
-  
-      if (doc.exists) {
-        // If the document exists, update the score by adding 10
-        const currentScore = doc.data()?.score || 0;
-        const newScore = currentScore + 10;
-        await docRef.update({ score: newScore });
-        console.log('Score updated successfully.');
-      } else {
-        // If the document doesn't exist, set the score to 10
-        await docRef.set({ score: 10 });
-        console.log('Score initialized successfully.');
-      }
-    } catch (error) {
-      console.error('Error performing Firestore operation:', error);
-      // Handle error
+  const getCurrentUserId = () => {
+    const auth = getAuth();
+    if (auth.currentUser) {
+      return auth.currentUser.uid;
+    } else {
+      // Handle case where no user is signed in
+      console.error("No user signed in.");
+      return null;
     }
+  };
+ // Example usage
+const handleFormSubmit = async (event) => {
+  event.preventDefault();
+  if (selectedAnswer) {
+    const correctAnswer = allQuestions[currentQuestionIndex].correctAnswer;
+    const userScore = selectedAnswer === correctAnswer ? 100 : 0;
+
+    try {
+      // Get current user ID
+      const userId = getCurrentUserId();
+
+      if (!userId) {
+        // Handle error or return if no user is signed in
+        return;
+      }
+
+      // Update document in "rewards" collection
+      const rewardsDocRef = doc(db, 'rewards', userId); // Example of using user's ID as document ID
+      await setDoc(rewardsDocRef, {
+        score: userScore
+      }, { merge: true });
+
+      // Display score or handle UI state
+      setScore(userScore);
+      closeQuestionBox();
+    } catch (error) {
+      console.error('Error adding document: ', error);
+      // Handle error state or UI feedback
+    }
+  } else {
+    alert('Please select an option before submitting.');
   }
-  
+};
   const currentQuestion = allQuestions[currentQuestionIndex];
 
   return (
