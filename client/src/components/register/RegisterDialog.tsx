@@ -52,7 +52,13 @@ export function RegisterDialog() {
         repayment_period: formData.repaymentPeriod,
       })
 
-      console.log('User and profile data inserted successfully!')
+      // Insert data into the rewards collection
+      await setDoc(doc(db, 'rewards', user.uid), {
+        user_id: user.uid,
+        score: 0
+      })
+
+      console.log('User, profile, and rewards data inserted successfully!')
     } catch (error) {
       alert(error.message)
     }
