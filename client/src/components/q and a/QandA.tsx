@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import DOMPurify from 'dompurify'; // Import DOMPurify for sanitizing input
 //  import { db } from '../../lib/firebase.ts';
-import { getFirestore, collection, setDoc, doc, addDoc } from "firebase/firestore";
+import { getFirestore, collection, setDoc, doc, addDoc , getDoc} from "firebase/firestore";
 
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
@@ -441,22 +441,37 @@ const handleFormSubmit = async (event) => {
         return;
       }
 
-      // Update document in "rewards" collection
-      const rewardsDocRef = doc(db, 'rewards', userId); // Example of using user's ID as document ID
-      await setDoc(rewardsDocRef, {
-        score: userScore
-      }, { merge: true });
+       // Reference to the user's reward document in the "rewards" collection
+       const rewardsDocRef = doc(db, 'rewards', userId);
 
-      // Display score or handle UI state
-      setScore(userScore);
-      closeQuestionBox();
-    } catch (error) {
-      console.error('Error adding document: ', error);
-      // Handle error state or UI feedback
-    }
-  } else {
-    alert('Please select an option before submitting.');
-  }
+       // Fetch the existing score from the document
+       const rewardsDocSnap = await getDoc(rewardsDocRef);
+       let existingScore = 0;
+ 
+       if (rewardsDocSnap.exists()) {
+         const rewardsData = rewardsDocSnap.data();
+         existingScore = rewardsData.score || 0;
+       }
+ 
+       // Calculate the new total score
+       const newTotalScore = existingScore + userScore;
+ 
+       // Update the document with the new total score
+       await setDoc(rewardsDocRef, {
+         score: newTotalScore,
+         user_id: userId,
+       }, { merge: true });
+ 
+       // Display score or handle UI state
+       setScore(newTotalScore);
+       closeQuestionBox();
+     } catch (error) {
+       console.error('Error adding document: ', error);
+       // Handle error state or UI feedback
+     }
+   } else {
+     alert('Please select an option before submitting.');
+   }
 };
   const currentQuestion = allQuestions[currentQuestionIndex];
 
@@ -507,7 +522,7 @@ const handleFormSubmit = async (event) => {
                 <button type="button" className="close" onClick={closeScoreModal}>&times;</button>
               </div>
               <div className="modal-body">
-                <p>Your score: {score}%</p>
+                <p>Your score: {score}</p>
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={closeScoreModal}>Close</button>

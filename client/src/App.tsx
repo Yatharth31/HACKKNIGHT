@@ -10,6 +10,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { Matches } from "./pages/Matches";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import QandA from "./components/q and a/QandA";
+import Leaderboard from "./components/leaderboard/Leaderboard";
 
 export default function App() {
   const [token, setToken] = useState(false);
@@ -37,6 +38,7 @@ export default function App() {
           <Route path="/support" element={<Support />} />
           <Route path="/news" element={<News />} />
           <Route path="/qnda" element={<QandA />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
         </Routes>
       </BrowserRouter>
       <Footer />

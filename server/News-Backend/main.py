@@ -8,6 +8,8 @@ from bs4 import BeautifulSoup
 from flask_cors import CORS
 from dotenv import load_dotenv
 import google.generativeai as genai 
+from firebase_admin import credentials, auth, firestore
+import firebase_admin
 
 
 
@@ -143,6 +145,51 @@ def summarize_news(news_url):
 def test():
     response = summarize_news("https://www.bbc.co.uk/programmes/p0j8l7f4")
     return jsonify(response)
+# Initialize the Firebase Admin SDK
+cred = credentials.Certificate("./credentials.json")
+firebase_admin.initialize_app(cred)
+
+# Initialize Firestore
+db = firestore.client()
+
+def fetch_user_profile(user_id):
+    profiles_ref = db.collection('profiles')
+    user_doc = profiles_ref.document(user_id).get()
+    if user_doc.exists:
+        return user_doc.to_dict()
+    else:
+        print(f"No profile found for user ID: {user_id}")
+        return None
+
+def leaderboard():
+    leaderboard_ref = db.collection('rewards')
+    leaderboard_data = leaderboard_ref.order_by('score', direction=firestore.Query.DESCENDING).limit(10).stream()
+    leaderboard = []
+    for doc in leaderboard_data:
+        leaderboard_entry = doc.to_dict()
+        user_id = leaderboard_entry.get('user_id')
+        user_profile = fetch_user_profile(user_id)
+        if user_profile:
+            leaderboard_entry['full_name'] = user_profile.get('full_name', 'N/A')
+        else:
+            leaderboard_entry['full_name'] = 'N/A'
+        leaderboard.append(leaderboard_entry)
+    return leaderboard
+
+@app.route('/leaderboard', methods=['GET'])
+def get_leaderboard():
+    try:
+        # Fetch leaderboard data
+        leaderboard_data = leaderboard()
+
+        # Prepare JSON response
+        leaderboard_json = jsonify({
+            'leaderboard': leaderboard_data
+        })
+
+        return leaderboard_json, 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
