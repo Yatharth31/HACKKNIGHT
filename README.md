@@ -1,4 +1,5 @@
 # HACKKNIGHT - BlackRock Hackathon 2024 (VIT PUNE)
+Selected as one of the top 9 finalists among 55 participating teams.
 ## Problem Statement : Financial Education and Management for Students
 ### Background:
 Students often face challenges managing their finances effectively, understanding financial concepts, and accessing critical information related to fees, scholarships, loans, and personal expenditures. There is a growing need for a user-friendly, integrated platform that not only provides educational resources but also facilitates financial management and planning tailored to the needs of students.
